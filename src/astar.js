@@ -1,16 +1,13 @@
 const Heap = require('heap');
+const backtrace = require('./backtrace');
+const { manhattan } = require('./heuristics');
 
-const manhattanHeuristic = (x, y, endX, endY) => Math.abs(x - endX) + Math.abs(y - endY);
-
-function backtrace(node) {
-    var path = [[node.x, node.y]];
-    while (node.parent) {
-        node = node.parent;
-        path.push([node.x, node.y]);
-    }
-    return path.reverse();
-}
-
+/**
+ * Find the best path between 2 points
+ * Its fast enough when you already know the end point.
+ * Otherwise you will need to iterate over something to find the
+ * end point, which brings more time complexity
+ */
 const AStarFind = (startX, startY, endX, endY, grid) => {
 	const openList = new Heap((nodeA, nodeB) => nodeA.f - nodeB.f);
 	const startNode = grid.getNode(startX, startY);
@@ -59,7 +56,7 @@ const AStarFind = (startX, startY, endX, endY, grid) => {
 			// can be reached with smaller cost from the current node
 			if (!neighbor.opened || ng < neighbor.g) {
 					neighbor.g = ng;
-					neighbor.h = neighbor.h || weight * manhattanHeuristic(x, y, endX, endY);
+					neighbor.h = neighbor.h || weight * manhattan(x, y, endX, endY);
 					neighbor.f = neighbor.g + neighbor.h;
 					neighbor.parent = node;
 
@@ -73,8 +70,8 @@ const AStarFind = (startX, startY, endX, endY, grid) => {
 							openList.updateItem(neighbor);
 					}
 			}
-		} // end for each neighbor
-	} // end while not open list empty
+		}
+	}
 
 	// fail to find the path
 	return [];

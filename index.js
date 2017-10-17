@@ -2,6 +2,8 @@
  * __main__
  */
 const Bot = require('./src/bot');
+const Runner = require('./src/runner');
 
-const bot = new Bot();
-bot.init();
+const io = new Runner(new Bot('bixie'));
+
+io.init();

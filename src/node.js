@@ -7,6 +7,10 @@ class Node {
 		this.closed = false;
 	}
 
+	isSnippet() {
+		return this.data.indexOf('C') >= 0;
+	}
+
 	canStep() {
 		const isBlocked = /x/gi.test(this.data);
 		const hasBug = /E[0-9]/gi.test(this.data);

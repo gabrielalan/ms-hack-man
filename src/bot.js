@@ -1,10 +1,5 @@
-const readline = require('readline');
-const AStarFind = require('./astar');
+const breadthFirstFinder = require('./bfs');
 const Grid = require('./grid');
-
-const write = message => process.stdout.write(message);
-
-const error = error => process.stderr.write(error);
 
 const tryToCastInt = value => isNaN(parseInt(value)) ? value : parseInt(value);
 
@@ -12,8 +7,8 @@ const PASS = 'pass';
 
 class Bot {
 
-	constructor() {
-		this.character = 'bixie';
+	constructor(character) {
+		this.character = character;
 
 		this.grid = null;
 
@@ -27,54 +22,18 @@ class Bot {
 		};
 	}
 
-	init() {
-		const io = readline.createInterface(process.stdin, process.stdout);
-
-		io.on('line', data => {
-
-			if (data.length === 0) {
-				return;
-			}
-
-			const lines = data.trim().split('\n');
-
-			while (0 < lines.length) {
-
-				const line = lines.shift().trim();
-				const lineParts = line.split(" ");
-
-				if (lineParts.length === 0) {
-					return;
-				}
-
-				const command = lineParts.shift().toLowerCase();
-
-				if (command in this) {
-					const response = this[command](lineParts);
-
-					if (response && 0 < response.length) {
-							write(response + '\n');
-					}
-				} else {
-					error('Unable to execute command: ' + command + ', with data: ' + lineParts + '\n');
-				}
-			}
-		});
-
-		io.on('close', () => {
-			process.exit(0);
-		});
-	}
-
 	getId() {
 		return 'P' + this.options.your_botid;
 	}
 
+	/**
+	 * Grabs bot position and calculate the path to the closest snippet
+	 * using breadth-first search
+	 */
 	move() {
 		const botPosition = this.grid.getNodeByValue(this.getId());
-		const firstSnippet = this.grid.getFirstSnippet();
 
-		const result = AStarFind(botPosition.x, botPosition.y, firstSnippet.x, firstSnippet.y, this.grid);
+		const result = breadthFirstFinder(botPosition.x, botPosition.y, this.grid);
 
 		if (!result.length) {
 			return PASS;
@@ -83,6 +42,9 @@ class Bot {
 		return this.grid.getDirection(result[0], result[1]) || PASS;
 	}
 
+	/**
+	 * Perform data update on the structure
+	 */
 	update(data) {
 		if (this.grid === null) {
 			const width = this.options.field_width;
@@ -105,6 +67,10 @@ class Bot {
 		}
 	}
 
+	/**
+	 * When the game ask for an action
+	 * the should respond correct or let it pass
+	 */
 	action(data) {
 		this.options.timebank = tryToCastInt(data[2]);
 
