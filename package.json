@@ -1,0 +1,23 @@
+{
+  "name": "ms-hack-man",
+  "version": "0.0.1",
+  "description": "MS Hack-man path finder",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gabrielalan/ms-hack-man.git"
+  },
+  "author": "Gabriel Pereira",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gabrielalan/ms-hack-man/issues"
+  },
+  "homepage": "https://github.com/gabrielalan/ms-hack-man#readme",
+  "dependencies": {
+    "heap": "^0.2.6"
+  }
+}
