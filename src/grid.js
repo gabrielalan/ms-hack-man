@@ -82,12 +82,11 @@ class Grid {
 		];
 
 		return list.reduce((result, item) => {
-			const index = this.getIndex.apply(this, item);
-
-			if (this.list[index]) {
-				result.push(this.list[index]);
+			if (item[0] < 1 || item[0] > this.width || item[1] < 1 || item[1] > this.height) {
+				return result;
 			}
 
+			result.push(this.list[this.getIndex.apply(this, item)]);
 			return result;
 		}, []);
 	}

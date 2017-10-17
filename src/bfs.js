@@ -6,7 +6,7 @@ const backtrace = require('./backtrace');
  * but know what is the endpoint.
  * A* its faster than BFS, but you need to know the endpoint.
  */
-const breadthFirstFinder = (startX, startY, grid) => {
+const breadthFirstSearch = (startX, startY, grid) => {
 	const openList = [];
 	const startNode = grid.getNode(startX, startY);
 
@@ -30,8 +30,8 @@ const breadthFirstFinder = (startX, startY, grid) => {
 		neighbors = grid.getNeighbors(node);
 
 		for (let neighbor of neighbors) {
-			// skip this neighbor if it has been inspected before
-			if (neighbor.closed || neighbor.opened) {
+			// skip this neighbor if it has been inspected before or extra checks
+			if (!neighbor.isValid()) {
 					continue;
 			}
 
@@ -45,4 +45,4 @@ const breadthFirstFinder = (startX, startY, grid) => {
 	return [];
 };
 
-module.exports = breadthFirstFinder;
+module.exports = breadthFirstSearch;

@@ -1,4 +1,5 @@
-const breadthFirstFinder = require('./bfs');
+const breadthFirstSearch = require('./bfs');
+const AStarFinder = require('./astar');
 const Grid = require('./grid');
 
 const tryToCastInt = value => isNaN(parseInt(value)) ? value : parseInt(value);
@@ -33,7 +34,7 @@ class Bot {
 	move() {
 		const botPosition = this.grid.getNodeByValue(this.getId());
 
-		const result = breadthFirstFinder(botPosition.x, botPosition.y, this.grid);
+		const result = breadthFirstSearch(botPosition.x, botPosition.y, this.grid);
 
 		if (!result.length) {
 			return PASS;

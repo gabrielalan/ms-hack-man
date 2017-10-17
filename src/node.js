@@ -5,6 +5,7 @@ class Node {
 		this.y = coords.y;
 		this.f = 0;
 		this.closed = false;
+		this.opened = false;
 	}
 
 	isSnippet() {
@@ -19,7 +20,7 @@ class Node {
 	}
 
 	isValid() {
-		return !this.closed && this.canStep();
+		return !this.closed && !this.opened && this.canStep();
 	}
 }
 
