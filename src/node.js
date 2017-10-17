@@ -12,11 +12,20 @@ class Node {
 		return this.data.indexOf('C') >= 0;
 	}
 
+	isLeftGate() {
+		return this.data.indexOf('Gl') >= 0;
+	}
+
+	isRightGate() {
+		return this.data.indexOf('Gr') >= 0;
+	}
+
 	canStep() {
 		const isBlocked = /x/gi.test(this.data);
 		const hasBug = /E[0-9]/gi.test(this.data);
 		const hasArmedMine = /B[0-9]/gi.test(this.data);
-		return !isBlocked && !hasBug && !hasArmedMine;
+		const isSpawning = /S[0-3]/gi.test(this.data);
+		return !isBlocked && !hasBug && !hasArmedMine && !isSpawning;
 	}
 
 	isValid() {

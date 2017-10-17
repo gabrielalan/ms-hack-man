@@ -34,6 +34,14 @@ class Bot {
 	move() {
 		const botPosition = this.grid.getNodeByValue(this.getId());
 
+		if (botPosition.isLeftGate()) {
+			return 'LEFT';
+		}
+
+		if (botPosition.isRightGate()) {
+			return 'RIGHT';
+		}
+
 		const result = breadthFirstSearch(botPosition.x, botPosition.y, this.grid);
 
 		if (!result.length) {
