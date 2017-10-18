@@ -87,7 +87,7 @@ class Bot {
 			const closestSnippetPath = breadthFirstSearch(oppositeGate.x, oppositeGate.y, this.isEndNode, this.grid, maxChecks);
 			const newPath = pathToGate.concat(closestSnippetPath);
 
-			if (newPath.length <= normalPath.length) {
+			if (closestSnippetPath.length && newPath.length <= normalPath.length) {
 				return newPath;
 			}
 		}
@@ -108,13 +108,15 @@ class Bot {
 	 * using breadth-first search
 	 */
 	move() {
-		const result = this.getCurrentPath();
+		// const result = this.getCurrentPath();
+		const result = this.getPathClosestSnippet();
 
 		if (!result.length) {
 			return PASS;
 		}
 
-		const current = result.shift();
+		// const current = result.shift();
+		const current = result[0];
 		const node = this.grid.getNode(current[0], current[1]);
 
 		/**
@@ -133,11 +135,12 @@ class Bot {
 
 		this.cameFromGate = null;
 
-		const direction = this.grid.getDirection(current, result[0]);
+		// const direction = this.grid.getDirection(current, result[0]);
+		const direction = this.grid.getDirection(current, result[1]);
 
 		/**
 		 * If there is no direction, the current path is invalid
-		 * so we need to get a new one
+		 * so we need to get a new one on next move
 		 */
 		if (!direction) {
 			this.grid.cleanNodes();
