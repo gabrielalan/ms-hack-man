@@ -37,11 +37,22 @@ class Bot {
 		return breadthFirstSearch(botPosition.x, botPosition.y, this.isEndNode, this.grid);
 	}
 
+	/**
+	 * The path is invalid if 
+	 * - the last node isn't a snippet anymore (other bot can get it before us)
+	 * - the next 3 steps have a bug, mine or is spawning node
+	 * - has only 1 node in it, so it's impossible to get the next direction and the bot is already on the final step
+	 */
 	isCurrentPathValid() {
 		const end = this.currentPath[this.currentPath.length - 1];
 		const endNode = this.grid.getNode(end[0], end[1]);
 
-		return this.isEndNode(endNode) && this.currentPath.length > 1;
+		const next3AreClean = this.currentPath.slice(0, 3).reduce((result, coord) => {
+			const node = this.grid.getNode(coord[0], coord[1]);
+			return node.isClean() && result;
+		}, true);
+
+		return this.isEndNode(endNode) && next3AreClean && this.currentPath.length > 1;
 	}
 
 	/**

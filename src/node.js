@@ -19,12 +19,16 @@ class Node {
 		return this.data.indexOf('Gr') >= 0;
 	}
 
+	isClean() {
+		const hasArmedMine = /B[0-9]/gi.test(this.data);
+		const hasBug = /E[0-9]/gi.test(this.data);
+		const isSpawning = /S[0-3]/gi.test(this.data);
+		return !hasBug && !hasArmedMine && !isSpawning;
+	}
+
 	canStep() {
 		const isBlocked = /x/gi.test(this.data);
-		const hasBug = /E[0-9]/gi.test(this.data);
-		const hasArmedMine = /B[0-9]/gi.test(this.data);
-		const isSpawning = /S[0-3]/gi.test(this.data);
-		return !isBlocked && !hasBug && !hasArmedMine && !isSpawning;
+		return !isBlocked && this.isClean();
 	}
 
 	isValid() {
