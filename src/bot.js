@@ -33,8 +33,11 @@ class Bot {
 		return 'P' + this.options.your_botid;
 	}
 
-	getPathClosestSnippet(botPosition) {
-		return breadthFirstSearch(botPosition.x, botPosition.y, this.isEndNode, this.grid);
+	getPathClosestSnippet() {
+		const botPosition = this.grid.getBotPosition();
+		const nextPath = breadthFirstSearch(botPosition.x, botPosition.y, this.isEndNode, this.grid);
+
+		return this.checkGatePath(nextPath, botPosition);
 	}
 
 	/**
@@ -94,10 +97,7 @@ class Bot {
 
 	getCurrentPath() {
 		if (!this.currentPath || !this.currentPath.length || !this.isCurrentPathValid()) {
-			const botPosition = this.grid.getNodeByValue(this.getId());
-			const nextPath = this.getPathClosestSnippet(botPosition);
-
-			this.currentPath = this.checkGatePath(nextPath, botPosition);
+			this.currentPath = this.getPathClosestSnippet();
 		}
 
 		return this.currentPath;
@@ -155,7 +155,7 @@ class Bot {
 			const width = this.options.field_width;
 			const height = this.options.field_height;
 			
-			this.grid = new Grid(width, height);
+			this.grid = new Grid(width, height, this.getId());
 		}
 
 		switch(data[0]) {

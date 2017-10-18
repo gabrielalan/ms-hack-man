@@ -8,10 +8,14 @@ const Node = require('./node.js');
  * .,.,.,.,x,.,.,x,x,x,.,.,.,.,.,C,.,S
  */
 class Grid {
-	constructor(width, height) {
+	constructor(width, height, botId) {
 		this.width = width;
 		this.height = height;
 		this.round = 0;
+		this.botId = botId;
+		this.botPosition = null;
+		this.leftGate = null;
+		this.rightGate = null;
 	}
 
 	parseGameData(key, value) {
@@ -26,19 +30,51 @@ class Grid {
 	}
 
 	createNodes(list) {
-		return list.map((item, index) => new Node(item, this.getXY(index)));
+		return list.map((item, index) => {
+			const node = new Node(item, this.getXY(index));
+
+			if (item.indexOf(this.botId) >= 0) {
+				this.botPosition = node;
+			}
+
+			if (node.isLeftGate()) {
+				this.leftGate = node;
+			}
+
+			if (node.isRightGate()) {
+				this.rightGate = node;
+			}
+
+			return node;
+		});
 	}
 
 	cleanNodes() {
 		this.list.map(node => node.cleanDirty());
 	}
 
+	getBotPosition() {
+		if (!this.botPosition) {
+			this.botPosition = this.getNodeByValue(this.botId);
+		}
+
+		return this.botPosition;
+	}
+
 	getLeftGate() {
-		return this.getNode(1, 8);
+		if (!this.leftGate) {
+			this.leftGate = this.getNode(1, 8);
+		}
+
+		return this.leftGate;
 	}
 
 	getRightGate() {
-		return this.getNode(19, 8);
+		if (!this.rightGate) {
+			this.rightGate = this.getNode(19, 8);
+		}
+
+		return this.rightGate;
 	}
 
 	/**
