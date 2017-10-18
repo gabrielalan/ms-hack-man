@@ -29,6 +29,18 @@ class Grid {
 		return list.map((item, index) => new Node(item, this.getXY(index)));
 	}
 
+	cleanNodes() {
+		this.list.map(node => node.cleanDirty());
+	}
+
+	getLeftGate() {
+		return this.getNode(1, 8);
+	}
+
+	getRightGate() {
+		return this.getNode(19, 8);
+	}
+
 	/**
 	 * Both nodes need to be neighbors
 	 * @param start x y tuple [x, y]
@@ -101,8 +113,12 @@ class Grid {
 		return { x, y };
 	}
 
-	getIndex(x, y) { 
+	getIndex(x, y) {
 		return (x - 1) + ((y - 1) * this.width);
+	}
+
+	getSize() {
+		return this.width * this.height;
 	}
 }
 

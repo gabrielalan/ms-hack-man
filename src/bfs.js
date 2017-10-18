@@ -6,24 +6,26 @@ const backtrace = require('./backtrace');
  * but know what is the endpoint.
  * A* its faster than BFS, but you need to know the endpoint.
  */
-const breadthFirstSearch = (startX, startY, grid) => {
-	const openList = [];
+const breadthFirstSearch = (startX, startY, end, grid, limit = false) => {
+	const queue = [];
+	const extraSafety = 1.2;
+	const maxChecks = limit || Math.ceil(grid.getSize() * extraSafety);
 	const startNode = grid.getNode(startX, startY);
 
-	let neighbors, node;
+	let neighbors, node, counter = 0;
 
 	// push the start pos into the queue
-	openList.push(startNode);
+	queue.push(startNode);
 	startNode.opened = true;
 
-	// while the queue is not empty
-	while (openList.length) {
+	// while the queue is not empty AND the limit is not reached
+	while (queue.length && (counter < maxChecks)) {
 		// take the front node from the queue
-		node = openList.shift();
+		node = queue.shift();
 		node.closed = true;
 
 		// reached the end position
-		if (node.isSnippet()) {
+		if (end(node)) {
 			return backtrace(node);
 		}
 
@@ -35,10 +37,12 @@ const breadthFirstSearch = (startX, startY, grid) => {
 					continue;
 			}
 
-			openList.push(neighbor);
+			queue.push(neighbor);
 			neighbor.opened = true;
 			neighbor.parent = node;
 		}
+
+		counter++;
 	}
 	
 	// fail to find the path

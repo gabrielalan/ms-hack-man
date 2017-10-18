@@ -4,8 +4,7 @@ class Node {
 		this.x = coords.x;
 		this.y = coords.y;
 		this.f = 0;
-		this.closed = false;
-		this.opened = false;
+		this.cleanDirty();
 	}
 
 	isSnippet() {
@@ -30,6 +29,12 @@ class Node {
 
 	isValid() {
 		return !this.closed && !this.opened && this.canStep();
+	}
+
+	cleanDirty() {
+		this.closed = false;
+		this.opened = false;
+		this.parent = null;
 	}
 }
 

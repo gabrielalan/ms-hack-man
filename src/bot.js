@@ -13,6 +13,12 @@ class Bot {
 
 		this.grid = null;
 
+		this.currentPath = null;
+
+		this.isEndNode = node => node.isSnippet();
+
+		this.cameFromGate = null;
+
 		this.holding = {
 			snippets: 0,
 			bombs: 0
@@ -27,28 +33,107 @@ class Bot {
 		return 'P' + this.options.your_botid;
 	}
 
+	getPathClosestSnippet(botPosition) {
+		return breadthFirstSearch(botPosition.x, botPosition.y, this.isEndNode, this.grid);
+	}
+
+	isCurrentPathValid() {
+		const end = this.currentPath[this.currentPath.length - 1];
+		const endNode = this.grid.getNode(end[0], end[1]);
+
+		return this.isEndNode(endNode) && this.currentPath.length > 1;
+	}
+
+	/**
+	 * Checks if there is a gate close to the bot
+	 * If true, look for the closest snippet on the opposite gate
+	 * If finds and the path is shorter than the normalPath
+	 * returns it as the new path
+	 *
+	 * Has not a good performance. Time complexity is probably something like:
+	 * O(2n + 2(n/4))
+	 */
+	checkGatePath(normalPath, botPosition) {
+		this.grid.cleanNodes();
+
+		/**
+		 * Limits the iteration to max 5 levels check
+		 * since we don't want to waste too much time on it
+		 */
+		const maxChecks = 61;
+		const isGate = node => node.isLeftGate() || node.isRightGate();
+		const pathToGate = breadthFirstSearch(botPosition.x, botPosition.y, isGate, this.grid, maxChecks);
+
+		if (pathToGate.length) {
+			this.grid.cleanNodes();
+
+			const end = pathToGate[pathToGate.length - 1];
+			const gateNode = this.grid.getNode(end[0], end[1]);
+			const oppositeGate = gateNode.isLeftGate() ? this.grid.getRightGate() : this.grid.getLeftGate();
+			const closestSnippetPath = breadthFirstSearch(oppositeGate.x, oppositeGate.y, this.isEndNode, this.grid, maxChecks);
+			const newPath = pathToGate.concat(closestSnippetPath);
+
+			if (newPath.length <= normalPath.length) {
+				return newPath;
+			}
+		}
+
+		return normalPath;
+	}
+
+	getCurrentPath() {
+		if (!this.currentPath || !this.currentPath.length || !this.isCurrentPathValid()) {
+			const botPosition = this.grid.getNodeByValue(this.getId());
+			const nextPath = this.getPathClosestSnippet(botPosition);
+
+			this.currentPath = this.checkGatePath(nextPath, botPosition);
+		}
+
+		return this.currentPath;
+	}
+
 	/**
 	 * Grabs bot position and calculate the path to the closest snippet
 	 * using breadth-first search
 	 */
 	move() {
-		const botPosition = this.grid.getNodeByValue(this.getId());
-
-		if (botPosition.isLeftGate()) {
-			return 'LEFT';
-		}
-
-		if (botPosition.isRightGate()) {
-			return 'RIGHT';
-		}
-
-		const result = breadthFirstSearch(botPosition.x, botPosition.y, this.grid);
+		const result = this.getCurrentPath();
 
 		if (!result.length) {
 			return PASS;
 		}
 
-		return this.grid.getDirection(result[0], result[1]) || PASS;
+		const current = result.shift();
+		const node = this.grid.getNode(current[0], current[1]);
+
+		/**
+		 * If the node is a gate and the bot didn't come 
+		 * from the opposite gate already, go for it
+		 */
+		if (node.isLeftGate() && this.cameFromGate !== 'RIGHT') {
+			this.cameFromGate = 'LEFT';
+			return 'LEFT';
+		}
+
+		if (node.isRightGate() && this.cameFromGate !== 'LEFT') {
+			this.cameFromGate = 'RIGHT';
+			return 'RIGHT';
+		}
+
+		this.cameFromGate = null;
+
+		const direction = this.grid.getDirection(current, result[0]);
+
+		/**
+		 * If there is no direction, the current path is invalid
+		 * so we need to get a new one
+		 */
+		if (!direction) {
+			this.grid.cleanNodes();
+			this.currentPath = null;
+		}
+
+		return direction || PASS;
 	}
 
 	/**
@@ -78,7 +163,7 @@ class Bot {
 
 	/**
 	 * When the game ask for an action
-	 * the should respond correct or let it pass
+	 * the bot should respond correct or let it pass
 	 */
 	action(data) {
 		this.options.timebank = tryToCastInt(data[2]);
